@@ -45,7 +45,6 @@ jobs:
           command: |
             title='# Example: Myriad cluster at UCL, University College London'
             awk -v beg="${title}" -v num=8 '$0==beg{c=num} c&&c--{sub(/# /,"")} 1' _config.yml > _config.yml
-            echo "github: [metadata]" >> _config.yml
 
       - run:
           name: Jekyll build
@@ -53,9 +52,7 @@ jobs:
 
       - run:
           name: Check Jekyll build
-          command: |
-            cat std.err
-            exit $(wc -l std.err | awk '{print $1}')
+          command: cat std.err
 
       - run:
           name: Jekyll re-build for local
