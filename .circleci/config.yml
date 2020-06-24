@@ -8,7 +8,11 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-       - image: jekyll/jekyll:3
+       - image: circleci/ruby:2.6.3-stretch-node
+    environment:
+      BUNDLE_PATH: ~/vendor/bundle
+
+    working_directory: ~/repo
 
     steps:
       - checkout
@@ -21,15 +25,24 @@ jobs:
             fi
 
       - run:
-          name: Which bundler?
+          name: Which bundler/jekyll? create gemfile
           command: |
             bundle -v
-            jekyll -v
+            printf "source 'https://rubygems.org'\nrequire 'json'\nrequire 'open-uri'\nversions = JSON.parse(open('https://pages.github.com/versions.json').read)\n\ngem 'github-pages', group: :jekyll_plugins\ngem 'html-proofer'" > Gemfile
+            cat Gemfile
 
-      # use the gh-pages orb to build the site as in gh
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - rubygems-v1-latest
+
+      - run:
+          name: install dependencies
+          command: bundle check || bundle install --jobs=4 --retry=3
+
       - run:
           name: Jekyll build
-          command: jekyll build -d html 2> std.err
+          command: bundle exec jekyll build -d html 2> std.err
 
       - run:
           name: Check Jekyll build
@@ -41,7 +54,7 @@ jobs:
           name: Jekyll re-build for local
           command: |
             echo "url: https://${CIRCLE_BUILD_NUM}-30926520-gh.circle-artifacts.com" > circle.yml && \
-            jekyll build -d html -b "/0/html"  --config _config.yml,circle.yml && \
+            bundle exec jekyll build -d html -b "/0/html"  --config _config.yml,circle.yml && \
             find ./html/ -type f -iname '*html' | xargs -I{} sed -i \
               -e 's|href="\(\.\/.*\/\)"|href="\1index.html"|g' \
               -e '/0\/html/ s|href="\(\/.*\/\)"|href="\1index.html"|g' {}
@@ -50,6 +63,11 @@ jobs:
       - run:
           name: "Built documentation is available at:"
           command: DOCS_URL="${CIRCLE_BUILD_URL}/artifacts/${CIRCLE_NODE_INDEX}/html/index.html"; echo $DOCS_URL
+
+      - save_cache:
+          paths:
+            - ~/vendor/bundle
+          key: rubygems-v1-latest
 
       # collect reports
       - store_artifacts:
