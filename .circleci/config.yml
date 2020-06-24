@@ -25,19 +25,16 @@ jobs:
               git checkout -qf pr/$CIRCLE_PR_NUMBER/merge
             fi
 
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-          - rubygems-v1-latest
-
       - run:
           name: Which bundler?
-          command: bundle -v
+          command: |
+            bundle -v
+            jekyll -v
 
       # use the gh-pages orb to build the site as in gh
       - run:
           name: Jekyll build
-          command: bundle exec jekyll build -d html 2> std.err
+          command: jekyll build -d html 2> std.err
 
       - run:
           name: Check Jekyll build
@@ -49,7 +46,7 @@ jobs:
           name: Jekyll re-build for local
           command: |
             echo "url: https://${CIRCLE_BUILD_NUM}-30926520-gh.circle-artifacts.com" > circle.yml && \
-            bundle exec jekyll build -d html -b "/0/html"  --config _config.yml,circle.yml && \
+            jekyll build -d html -b "/0/html"  --config _config.yml,circle.yml && \
             find ./html/ -type f -iname '*html' | xargs -I{} sed -i \
               -e 's|href="\(\.\/.*\/\)"|href="\1index.html"|g' \
               -e '/0\/html/ s|href="\(\/.*\/\)"|href="\1index.html"|g' {}
@@ -58,11 +55,6 @@ jobs:
       - run:
           name: "Built documentation is available at:"
           command: DOCS_URL="${CIRCLE_BUILD_URL}/artifacts/${CIRCLE_NODE_INDEX}/html/index.html"; echo $DOCS_URL
-
-      - save_cache:
-          paths:
-            - ~/vendor/bundle
-          key: rubygems-v1-latest
 
       # collect reports
       - store_artifacts:
