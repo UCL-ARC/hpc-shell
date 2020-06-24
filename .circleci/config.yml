@@ -7,8 +7,7 @@ version: 2.1
 # Declare the orbs that we'll use in our config.
 # read more about orbs: https://circleci.com/docs/2.0/using-orbs/
 orbs:
-  ruby: circleci/ruby@0.1.2
-
+  gh-pages-orb: fernfernfern/github-pages-orb@0.0.10
 
 jobs:
   build:
@@ -36,8 +35,8 @@ jobs:
           name: Which bundler?
           command: bundle -v
 
-      # use the ruby orb to install dependencies
-      - ruby/bundle-install
+      # use the gh-pages orb to build the site as in gh
+      - gh-pages-orb/build-site
 
       - run:
           name: Jekyll build
