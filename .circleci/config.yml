@@ -8,7 +8,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-       - image: circleci/ruby:2.6.3-stretch-node
+       - image: jekyll/jekyll:3
 
     steps:
       - checkout
@@ -21,10 +21,9 @@ jobs:
             fi
 
       - run:
-          name: Which bundler/jekyll?
+          name: Which bundler?
           command: |
             bundle -v
-            gem install bundler jekyll
             jekyll -v
 
       # use the gh-pages orb to build the site as in gh
