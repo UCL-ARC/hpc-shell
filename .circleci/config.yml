@@ -44,7 +44,7 @@ jobs:
           name: Use UCL settings
           command: |
             title='# Example: Myriad cluster at UCL, University College London'
-            awk -v beg="${title}" -v num=8 '$0==beg{c=num} c&&c--{sub(/# /,"")} 1' _config.yml
+            awk -v beg="${title}" -v num=8 '$0==beg{c=num} c&&c--{sub(/# /,"")} 1' _config.yml > _config.yml
 
       - run:
           name: Jekyll build
