@@ -41,6 +41,12 @@ jobs:
           command: bundle check || bundle install --jobs=4 --retry=3
 
       - run:
+          name: Use UCL settings
+          command: |
+            title='# Example: Myriad cluster at UCL, University College London'
+            awk -v beg="${title}" -v num=8 '$0==beg{c=num} c&&c--{sub(/# /,"")} 1' _config.yml
+
+      - run:
           name: Jekyll build
           command: bundle exec jekyll build -d html 2> std.err
 
