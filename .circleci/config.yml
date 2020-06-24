@@ -4,11 +4,6 @@
 #
 version: 2.1
 
-# Declare the orbs that we'll use in our config.
-# read more about orbs: https://circleci.com/docs/2.0/using-orbs/
-orbs:
-  jekyll: felicianotech/jekyll@0.1.0
-
 jobs:
   build:
     docker:
@@ -26,9 +21,10 @@ jobs:
             fi
 
       - run:
-          name: Which bundler?
+          name: Which bundler/jekyll?
           command: |
             bundle -v
+            gem install bundler jekyll
             jekyll -v
 
       # use the gh-pages orb to build the site as in gh
